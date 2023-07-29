@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql.sqltypes import TIMESTAMP #Aunque es similar a DateTime
 from sqlalchemy.orm import relationship
@@ -167,7 +167,7 @@ def add_purchase_order_detail():
 
 #CATEGORIES
 @app.route("/get-categories")
-def get_category():
+def get_categories():
     result = db.session.execute(db.select(Categories).order_by(Categories.id))
     all_results = result.scalars().all()
     return jsonify(categories=[category.to_dict() for category in all_results])
@@ -254,6 +254,73 @@ def search_purchase_order_detail():
     all_results = result.scalars().all()
     if all_results:
         return jsonify(order=[order.to_dict() for order in all_results])
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+    
+# -------------------------- UPDATE BY ID | PATCH | -------------------------- #
+
+#CATEGORIES 
+@app.route("/change-category/<int:id>/<column>", methods=["PATCH"])
+def change_category(id, column):
+    new_value= request.args.get("new_value")
+    category = db.get_or_404(Categories, id)
+    
+    if category:
+        setattr(category, column, new_value)
+        db.session.commit()
+        return redirect(url_for("get_categories"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+
+#PRODUCTS
+@app.route("/change-product/<int:id>/<column>", methods=["PATCH"])
+def change_product(id, column):
+    new_value= request.args.get("new_value")
+    product = db.get_or_404(Products, id)
+    
+    if product:
+        setattr(product, column, new_value)
+        db.session.commit()
+        return redirect(url_for("get_products"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+
+#PROVIDERS
+@app.route("/change-provider/<int:id>/<column>", methods=["PATCH"])
+def change_provider(id, column):
+    new_value= request.args.get("new_value")
+    provider = db.get_or_404(Providers, id)
+    
+    if provider:
+        setattr(provider, column, new_value)
+        db.session.commit()
+        return redirect(url_for("get_providers"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+
+#PURCHASE ORDERS
+@app.route("/change-purchase-order/<int:id>/<column>", methods=["PATCH"])
+def change_purchase_order(id, column):
+    new_value= request.args.get("new_value")
+    purchase = db.get_or_404(Purchase_orders, id)
+    
+    if purchase:
+        setattr(purchase, column, new_value)
+        db.session.commit()
+        return redirect(url_for("get_purchase_orders"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+
+#PURCHASE ORDER DETAIL
+@app.route("/change-purchase-order-detail/<int:id>/<column>", methods=["PATCH"])
+def change_purchase_order_detail(id, column):
+    new_value= request.args.get("new_value")
+    purchase = db.get_or_404(Purchase_order_detail, id)
+    
+    if purchase:
+        setattr(purchase, column, new_value)
+        db.session.commit()
+        return redirect(url_for("get_purchase_order_detail"))
     else:
         return jsonify(error={"Not Found": "The id doesn't exist"}), 404
 
