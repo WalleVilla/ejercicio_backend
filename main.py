@@ -323,6 +323,20 @@ def change_purchase_order_detail(id, column):
         return redirect(url_for("get_purchase_order_detail"))
     else:
         return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+    
+# ------------------------------- DELETE BY ID ------------------------------- #
+
+#PURCHASE ORDER DETAIL
+@app.route("/delete-purchase-order-detail/<int:id>", methods=["DELETE"])
+def delete_purchase_order_detail(id):
+    purchase = db.get_or_404(Purchase_order_detail, id)
+    
+    if purchase:
+        db.session.delete(purchase)
+        db.session.commit()
+        return redirect(url_for("get_purchase_order_detail"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
 
 # --------------------------------- HOME PAGE -------------------------------- #
  
