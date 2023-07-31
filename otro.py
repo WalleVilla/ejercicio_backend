@@ -1,80 +1,3 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql.sqltypes import TIMESTAMP #Aunque es similar a DateTime
-from sqlalchemy.orm import relationship
-from datetime import datetime
-
-app = Flask(__name__)
-
-#Create database
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///tienda.db"
-
-db = SQLAlchemy()
-db.init_app(app)
-
-# ------------------------------- CREATE TABLES ------------------------------ #
-
-'''
-SmallInteger es el equivalente a TINYINT al igual que String con VARCHAR
-'''
-#Función para convertir las tablas a un diccionario de python 
-class Table():
-    def to_dict(self):
-        dictionary = {}
-        
-        for column in self.__table__.columns:
-            dictionary[column.name] = getattr(self, column.name)
-        return dictionary
-
-class Categories(db.Model, Table):
-    id = db.Column(db.Integer, autoincrement=True ,primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
-    created_by = db.Column(db.SmallInteger) #nullable=False
-    
-class Products(db.Model, Table):
-    id = db.Column(db.Integer, autoincrement=True ,primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id") ,nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
-    created_by = db.Column(db.SmallInteger, nullable=False)
-    
-    categories = relationship("Categories", backref="Products")
-
-class Providers(db.Model, Table):
-    id = db.Column(db.Integer, autoincrement=True ,primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    full_address = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
-    created_by = db.Column(db.SmallInteger, nullable=False)
-
-class Purchase_orders(db.Model, Table):
-    provider_id = db.Column(db.Integer, db.ForeignKey("providers.id"),primary_key=True)
-    date = db.Column(TIMESTAMP, nullable=False)
-    total = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
-    created_by = db.Column(db.SmallInteger, nullable=False)
-    
-    categories = relationship("Providers", backref="Purchase_orders")
-
-class Purchase_order_detail(db.Model, Table):
-    purchase_order_id = db.Column(db.Integer, db.ForeignKey("purchase_orders.provider_id"), nullable=False, primary_key = True)
-    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    total = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
-    created_by = db.Column(db.SmallInteger, nullable=False)
-    
-    purchase_order = relationship("Purchase_orders", backref="Purchase_order_details")
-    products = relationship("Products", backref="Purchase_order_detail")
-    
-with app.app_context():
-    db.create_all()
-
-# ---------------------------------- CREATE ---------------------------------- #
-
 #CATEGORIES
 @app.route("/add-category", methods=["POST"])
 def add_category():
@@ -326,6 +249,19 @@ def change_purchase_order_detail(id, column):
     
 # ------------------------------- DELETE BY ID ------------------------------- #
 
+#CATEGORIES 
+@app.route("/delete-category/<int:id>", methods=["DELETE"])
+def delete_category(id):
+    category = db.get_or_404(Categories, id)
+    
+    if category:
+        db.session.delete(category)
+        db.session.commit()
+        return redirect(url_for("get_categories"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+
+
 #PURCHASE ORDER DETAIL
 @app.route("/delete-purchase-order-detail/<int:id>", methods=["DELETE"])
 def delete_purchase_order_detail(id):
@@ -340,9 +276,3 @@ def delete_purchase_order_detail(id):
 
 # --------------------------------- HOME PAGE -------------------------------- #
  
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-if __name__ == "__main__":
-    app.run(debug=True) 
