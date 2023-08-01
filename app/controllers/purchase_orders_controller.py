@@ -55,3 +55,13 @@ def change_purchase_order(id, column):
         return jsonify(error={"Not Found": "The id doesn't exist"}), 404
 
 # ------------------------------- DELETE BY ID ------------------------------- #
+
+def delete_purchase_order(id):
+    purchase = db.get_or_404(Purchase_orders, id)
+    
+    if purchase:
+        db.session.delete(purchase)
+        db.session.commit()
+        return redirect(url_for("route_get_purchase_orders"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404

@@ -51,3 +51,13 @@ def change_provider(id, column):
         return jsonify(error={"Not Found": "The id doesn't exist"}), 404
 
 # ------------------------------- DELETE BY ID ------------------------------- #
+
+def delete_provider(id):
+    provider = db.get_or_404(Providers, id)
+    
+    if provider:
+        db.session.delete(provider)
+        db.session.commit()
+        return redirect(url_for("route_get_providers"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404

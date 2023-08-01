@@ -52,3 +52,13 @@ def change_product(id, column):
         return jsonify(error={"Not Found": "The id doesn't exist"}), 404
 
 # ------------------------------- DELETE BY ID ------------------------------- #
+
+def delete_product(id):
+    product = db.get_or_404(Products, id)
+    
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        return redirect(url_for("route_get_products"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404

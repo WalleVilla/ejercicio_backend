@@ -9,11 +9,11 @@ from datetime import datetime
 
 # -------------------------- FUNCIONES DE LAS RUTAS -------------------------- #
 
-from controllers.categories_controller import add_category, get_categories, search_category, change_category
-from controllers.products_controller import add_product, get_products, search_product, change_product
-from controllers.providers_controller import add_provider, get_providers, search_provider, change_provider
-from controllers.purchase_orders_controller import add_purchase_order, get_purchase_orders, search_purchase_order, change_purchase_order
-from controllers.purchase_order_detail_controller import add_purchase_order_detail, get_purchase_order_detail, search_purchase_order_detail, change_purchase_order_detail, delete_purchase_order_detail
+from controllers.categories_controller import add_category, get_categories, search_category, change_category, delete_category
+from controllers.products_controller import add_product, get_products, search_product, change_product, delete_product
+from controllers.providers_controller import add_provider, get_providers, search_provider, change_provider, delete_provider
+from controllers.purchase_orders_controller import add_purchase_order, get_purchase_orders, search_purchase_order, change_purchase_order, delete_purchase_order
+from controllers.purchase_order_detail_controller import add_purchase_order_detail, get_purchase_order_detail, search_purchase_order_detail, change_purchase_order_detail
 
 # ---------------------------- INSTANCIA DE LA APP --------------------------- #
 
@@ -135,10 +135,30 @@ def route_change_purchase_order_detail(id, column):
 
 # ------------------------------- DELETE ROUTES ------------------------------ #
 
+#CATEGORIES
+@app.route("/delete-category/<int:id>", methods=["DELETE"])
+def route_delete_category(id):
+    return delete_category(id)
+
+#PRODUCTS
+@app.route("/delete-product/<int:id>", methods=["DELETE"])
+def route_delete_product(id):
+    return delete_product(id)
+
+#PROVIDERS
+@app.route("/delete-provider/<int:id>", methods=["DELETE"])
+def route_delete_provider(id):
+    return delete_provider(id)
+
+#PURCHASE ORDERS
+@app.route("/delete-purchase-order/<int:id>", methods=["DELETE"])
+def route_delete_purchase_order(id):
+    return delete_purchase_order(id)
+
 #PURCHASE ORDER DETAIL
 @app.route("/delete-purchase-order-detail/<int:id>", methods=["DELETE"])
 def route_delete_purchase_order_detail(id):
-    return delete_purchase_order_detail(id)
+    return 
 
 # --------------------------------- HOME PAGE -------------------------------- #
 

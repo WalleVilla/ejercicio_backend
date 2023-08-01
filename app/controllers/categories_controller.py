@@ -51,3 +51,14 @@ def change_category(id, column):
         return jsonify(error={"Not Found": "The id doesn't exist"}), 404
 
 # ------------------------------- DELETE BY ID ------------------------------- #
+
+def delete_category(id):
+    category = db.get_or_404(Categories, id)
+    
+    if category:
+        db.session.delete(category)
+        db.session.commit()
+        return redirect(url_for("route_get_categories"))
+    else:
+        return jsonify(error={"Not Found": "The id doesn't exist"}), 404
+    
